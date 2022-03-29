@@ -28,10 +28,13 @@ def main():
             isChoiceCorrect = True
             puzzle = matrix.random_matrix()
             isSolvable = branchNbound.isSolvable(puzzle)
-            print(isSolvable)
+            printMatrix(puzzle)
             # Buat dari matrix.py pake fungsi random
         elif choice == 2:
             isChoiceCorrect = True
+            puzzle = matrix.readFromFile()
+            isSolvable = branchNbound.isSolvable(puzzle)
+            printMatrix(puzzle)
             # Buat dari matrix.py pake fungsi readTxtFile
         elif choice == 3:
             isChoiceCorrect = True
