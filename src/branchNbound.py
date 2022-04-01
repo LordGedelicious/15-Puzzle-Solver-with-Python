@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 import numpy as np
 import copy
 
@@ -121,6 +122,21 @@ def sortListPCMTuple(listPCMTuple):
         listPCMTuple[minimum] = temp
     return listPCMTuple
 
+def anyHasReachTarget(listPCMTuple):
+    for i in range(len(listPCMTuple)):
+        countCorrect = 0
+        nowTestingPuzzle = listPCMTuple[i].containedPuzzle()
+        print()
+        printPuzzle(nowTestingPuzzle)
+        for j in range(0, 4):
+            for k in range(0, 4):
+                if (nowTestingPuzzle[j][k] == (j*4 + k + 1)):
+                    countCorrect += 1
+        print("Skor : ", countCorrect)
+        if (countCorrect == 16):
+            return True
+    return False
+
 def moveTiles(firstPCMTuple, listPCMTuple, row, col):
     # Dibagi jadi dua kondisi
     # Pertama, kalau untuk inisiasi pertama kali, dia diurutkan berdasarkan cost
@@ -132,7 +148,7 @@ def moveTiles(firstPCMTuple, listPCMTuple, row, col):
     else:
         baselinePCMTuple = listPCMTuple.pop(0)
         baselinePuzzle = baselinePCMTuple.containedPuzzle()
-        countMoveMade = baselinePCMTuple.moveMade()
+        countMoveMade = baselinePCMTuple.containedMoveMade()
     # Buat dulu semua kemungkinan puzzle yang bisa dibuat
     possibleMoves = whereCanTileMove(row, col)
     for move in possibleMoves:
@@ -145,20 +161,22 @@ def moveTiles(firstPCMTuple, listPCMTuple, row, col):
             newPuzzle = switchTwoValuesInMatrix(indexPuzzle, row, col, row - 1, col)
         elif (move == 'DOWN'):
             newPuzzle = switchTwoValuesInMatrix(indexPuzzle, row, col, row + 1, col)
-        printPuzzle(newPuzzle)
         newPuzzleCost = costAliveNodes(newPuzzle, countMoveMade + 1)
-        print(newPuzzleCost)
         tempListPCMTuple.append(PCMTuple(newPuzzle, newPuzzleCost, countMoveMade + 1))
     # Urutkan dulu isi dari tempListPuzzleTuple
     tempListPCMTuple = sortListPCMTuple(tempListPCMTuple)
     # Masukkan ke listPuzzleTuple
-    if (len(listPCMTuple) == 0):
-        listPCMTuple = tempListPCMTuple
-    else:
-        nextInQueue = tempListPCMTuple.pop(0)
-        listPCMTuple.insert(0, nextInQueue)
-        for i in tempListPCMTuple:
-            listPCMTuple.append(i)
+    listPCMTuple = tempListPCMTuple
+    hasFoundTarget = anyHasReachTarget(listPCMTuple)
+    while not(hasFoundTarget):
+        print("BELUM KETEMU ITERASI KE " + str(countMoveMade))
+        row, col = whereIsEmptyBlock(listPCMTuple[0])
+        listPCMTuple = moveTiles(firstPCMTuple, listPCMTuple, row, col)
+        hasFoundTarget = anyHasReachTarget(listPCMTuple)
+        if (hasFoundTarget):
+            print("YEY KETEMU ITERASI KE " + str(countMoveMade))
+            printListPuzzleTuple(listPCMTuple)
+            return listPCMTuple
     return listPCMTuple
 
 def printListPuzzleTuple(listPuzzleTuple):

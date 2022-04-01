@@ -28,7 +28,7 @@ def main():
                 print("Solvable!")
                 emptyRow, emptyCol = branchNbound.whereIsEmptyBlock(newPuzzleTuple)
                 listPuzzleTuple = branchNbound.moveTiles(newPuzzleTuple, [], emptyRow, emptyCol)
-                branchNbound.printListPuzzleTuple(listPuzzleTuple)
+                # branchNbound.printListPuzzleTuple(listPuzzleTuple)
             else:
                 print("Puzzle is unsolvable!")
                 exit()
@@ -42,7 +42,7 @@ def main():
                 print("Solvable!")
                 emptyRow, emptyCol = branchNbound.whereIsEmptyBlock(newPuzzleTuple)
                 listPuzzleTuple = branchNbound.moveTiles(newPuzzleTuple, [], emptyRow, emptyCol)
-                branchNbound.printListPuzzleTuple(listPuzzleTuple)
+                # branchNbound.printListPuzzleTuple(listPuzzleTuple)
             else:
                 print("Puzzle is unsolvable!")
                 exit()
