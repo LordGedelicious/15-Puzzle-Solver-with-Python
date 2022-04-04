@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from queue import PriorityQueue
 import matrixCreator
 import bNb
@@ -31,16 +30,20 @@ def mainProgram():
         initPTuple.printPuzzle(f)
         isSolvable = bNb.checkIsSolvable(initPTuple, f)
     if (isSolvable):
+        # Inisiasi jumlah simpul awal, waktu awal, dan dictionary untuk menyimpan puzzle yang pernah ditemukan
         nodeCreated = 0
         startTime = time.time()
         visitedStates = dict()
         # Isi dari priorityQueue : (cost, kedalaman (negatif), [puzzle, dictionary])
+        # Empat blok dibawah ini adalah inisiasi awal dari informasi simpul root
         prioQueue = PriorityQueue()
         currentMoveMade = []
         prioQueue.put((0, -1, [initPTuple, currentMoveMade]))
         visitedStates[initPTuple.returnPuzzleBytes()] = True
+        # Fungsi loop yang akan break/keluar ketika menemukan solusi
         hasFound = False
         while not hasFound:
+            # Akan mengambil elemen pertama dari priority queue dan mengecek apakah puzzle yang ditampung merupakan solusi atau bukan
             currentNode = prioQueue.get()
             currentTuple = currentNode[2][0]
             currentMoveMade = currentNode[2][1]
@@ -49,15 +52,20 @@ def mainProgram():
                 timeTaken = time.time() - startTime
                 printResult(initPTuple, currentMoveMade, timeTaken, nodeCreated, f)
             else:
+                # Bila bukan solusi, maka akan dilakukan perulangan berdasarkan semua langkah yang mungkin dilakukan dari posisi petak kosong pada puzzle simpul tersebut
                 currentEmptyBlockIdx = bNb.whereEmptyBlock(currentTuple)
                 currentMoveList = bNb.whereToMove(currentEmptyBlockIdx)
                 for move in currentMoveList:
                     newPuzzle = bNb.moveTile(currentTuple.copy(), currentEmptyBlockIdx, move)
                     newPuzzle.setCost = newPuzzle.countCost()
                     newPuzzle.setMoveMade(len(currentMoveMade) + 1)
+                    # Simpul baru hanya ditambahkan jika belum pernah ditemukan sebelumnya state puzzlenya
                     if newPuzzle.returnPuzzleBytes() not in visitedStates.keys():
                         nodeCreated += 1
                         visitedStates[newPuzzle.returnPuzzleBytes()] = True
+                        # Kedalaman suatu simpul disimpan dalam bentuk currentNode[1]
+                        # Semakin negatif nilai currentNode[1], maka posisi simpul semakin dalam
+                        # Untuk dua simpul dengan cost yang sama, maka prioritas akan jatuh kepada simpul yang lebih dalam
                         prioQueue.put((newPuzzle.countCost() - currentNode[1], currentNode[1] - 1, [newPuzzle, currentMoveMade + [move]]))
     else:
         print("Puzzle is not solvable!", file=f)
@@ -65,6 +73,8 @@ def mainProgram():
     f.close()
 
 def translateLangkah(langkah):
+    # Langkah disimpul dalam bentuk char untuk membantu mempermudah penulisan dan debugging
+    # Char akan ditranslasi menjadi string untuk memudahkan pengguna mengerti output file
     if langkah == 'U':
         return "Atas"
     elif langkah == 'D':
@@ -80,6 +90,7 @@ def printResult(initPTuple, currentMoveMade, timeTaken, nodeCreated, f):
     print("Jumlah langkah yang dilakukan:", len(currentMoveMade), file=f)
     print("Semua langkah yang dilakukan:", currentMoveMade , file=f)
     stepCount = 1
+    # Output puzzle dan langkah yang dilakukan dari awal hingga solusi
     while len(currentMoveMade) != 0:
         langkah = currentMoveMade.pop(0)
         textLangkah = translateLangkah(langkah)

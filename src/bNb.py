@@ -66,12 +66,18 @@ class PuzzleTuple:
                 cost += 1
         return cost
     
+    # COPY CONSTRUCTOR
+
     def copy(self):
         return PuzzleTuple(self.returnPuzzle(), self.returnCost(), self.returnMoveMade())
 
 
 def checkIsSolvable(PuzzleTuple, f):
     totalKurang = 0
+    # Fungsi KURANG(i) adalah jumlah kurang dari puzzle[j] dari puzzle[i] ke-i
+    # Akumulasi fungsi KURANG(i) ditambah X disimpan dalam totalKurang
+    # Bila nilai totalKurang ganjil, maka tidak ada solusi
+    # Sebaliknya, bila genap, ada solusi yang bisa dicapai dari puzzle awal
     for i in range(len(PuzzleTuple.returnPuzzle())):
         countKurang = 0
         testPuzzle = PuzzleTuple.returnPuzzle()[i]
@@ -92,11 +98,13 @@ def checkIsSolvable(PuzzleTuple, f):
         print("Posisi awal puzzle tidak memiliki solusi dengan nilai KURANG(i) sebesar {}\n".format(totalKurang), file=f)
         return False
 
+# Fungsi untuk mencari posisi petak kosong dari suatu puzzle
 def whereEmptyBlock(PuzzleTuple):
     for i in range(len(PuzzleTuple.returnPuzzle())):
         if PuzzleTuple.returnPuzzle()[i] == 16:
             return i
 
+# Fungsi untuk mencari semua gerakan legal dari suatu puzzle
 def whereToMove(emptyBlockIdx):
     # Urutan prioritas : 'R', 'L', 'U', 'D'
     if (emptyBlockIdx == 0):
@@ -118,6 +126,7 @@ def whereToMove(emptyBlockIdx):
     else:
         return ['R', 'L', 'U', 'D']
 
+# Fungsi gerakan dari puzzle, tergantung pada posisi petak kosong dan command yang diberikan
 def switchLeft(PuzzleTuple, emptyBlockIdx):
     PuzzleTuple.setPuzzle(np.insert(PuzzleTuple.returnPuzzle(), emptyBlockIdx - 1, 16))
     PuzzleTuple.setPuzzle(np.delete(PuzzleTuple.returnPuzzle(), emptyBlockIdx + 1))
