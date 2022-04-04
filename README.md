@@ -32,6 +32,8 @@ Isi direktori adalah sebagai berikut:
     ├── bNb.py [helper file untuk menggunakan algoritma branch and bound]
 ```
 
+Pada repository ini, terdapat file `output1.txt` pada folder `output`. Ini dilakukan agar folder `output` dapat dimasukkan ke dalam repository (repository melakukan auto-delete terhadap folder yang kosong. File ini dapat didelete atau dioverwrite setelah di-download/di-clone.
+
 ## Penggunaan
 1. Buka direktori `src` dan buka terminal. Alternatifnya adalah menggunakan command `cd` menuju direktori `src` pada direktori utama ini.
 2. Jalankan kode `py main.py`.
