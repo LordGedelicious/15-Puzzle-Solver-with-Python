@@ -1,5 +1,4 @@
 import numpy as np
-import itertools
 
 class PuzzleTuple:
 
@@ -35,9 +34,6 @@ class PuzzleTuple:
         self.moveMade = moveMade
     
     # COMPARISON FUNCTIONS
-
-    def __eq__(self, other):
-        return self.returnPuzzleBytes() == other.returnPuzzleBytes()
     
     def __lt__(self, other):
         return self.returnCost() < other.returnCost()
@@ -47,13 +43,20 @@ class PuzzleTuple:
 
     # VOID FUNCTIONS
 
-    def printPuzzle(self):
+    def printPuzzle(self, f):
+        for i in range(16):
+            if i % 4 == 0 and i != 0:
+                print("\n", end="", file=f)
+            print(self.puzzle[i], end=" ", file=f)
+        print("\n\n", end="", file=f)
+        
+    def printPuzzleTerminal(self):
         for i in range(16):
             if i % 4 == 0 and i != 0:
                 print("\n", end="")
             print(self.puzzle[i], end=" ")
-        print()
-    
+        print("\n\n", end="")
+
     # COST COUNTER
 
     def countCost(self):
@@ -61,33 +64,32 @@ class PuzzleTuple:
         for i in range(16):
             if self.puzzle[i] != i + 1:
                 cost += 1
-        self.cost = cost
         return cost
     
     def copy(self):
         return PuzzleTuple(self.returnPuzzle(), self.returnCost(), self.returnMoveMade())
 
 
-def checkIsSolvable(PuzzleTuple):
+def checkIsSolvable(PuzzleTuple, f):
     totalKurang = 0
     for i in range(len(PuzzleTuple.returnPuzzle())):
         countKurang = 0
         testPuzzle = PuzzleTuple.returnPuzzle()[i]
-        if testPuzzle == 16 and i % 2 == 0: # Dibalik, soalnya array starting pointnya 0 dan indeks yang dapet X = 1 itu ganjil di ppt tapi mulai dari 1
+        if testPuzzle == 16 and i in [1,3,4,6,9,11,12,14]: 
             totalKurang += 1
-            print("Elemen X memiliki nilai KURANG(i) senilai 1")
-        elif testPuzzle == 16 and i % 2 != 0:
-            print("Elemen X memiliki nilai KURANG(i) senilai 0")
+            print("Elemen X memiliki nilai KURANG(i) senilai 1", file=f)
+        elif testPuzzle == 16 and i not in [1,3,4,6,9,11,12,14]:
+            print("Elemen X memiliki nilai KURANG(i) senilai 0", file=f)
         for j in range(i + 1, len(PuzzleTuple.puzzle)):
             if PuzzleTuple.puzzle[i] > PuzzleTuple.puzzle[j]:
                 countKurang += 1
-        print(f'Elemen {testPuzzle} memiliki nilai KURANG(i) senilai {countKurang}')
+        print(f'Elemen {testPuzzle} memiliki nilai KURANG(i) senilai {countKurang}', file=f)
         totalKurang += countKurang
     if totalKurang % 2 == 0:
-        print("Posisi awal puzzle memiliki solusi dengan nilai KURANG(i) sebesar {}".format(totalKurang))
+        print("Posisi awal puzzle memiliki solusi dengan nilai KURANG(i) sebesar {}\n".format(totalKurang), file=f)
         return True
     else:
-        print("Posisi awal puzzle tidak memiliki solusi dengan nilai KURANG(i) sebesar {}".format(totalKurang))
+        print("Posisi awal puzzle tidak memiliki solusi dengan nilai KURANG(i) sebesar {}\n".format(totalKurang), file=f)
         return False
 
 def whereEmptyBlock(PuzzleTuple):
@@ -152,29 +154,3 @@ def moveTile(PuzzleTuple, emptyBlockIdx, move):
     elif move == 'D':
         PuzzleTuple = switchDown(PuzzleTuple, emptyBlockIdx)
     return PuzzleTuple
-
-# def costCounter(PuzzleTuple):
-#     cost = 0
-#     for i in range(len(PuzzleTuple.returnPuzzle())):
-#         if PuzzleTuple.returnPuzzle()[i] != i + 1:
-#             cost += 1
-#     return cost
-
-# def solvePuzzle(PuzzleTuple):
-#     if PuzzleTuple.isTheAnswer():
-#         return PuzzleTuple
-#     else:
-#         emptyBlockIdx = whereEmptyBlock(PuzzleTuple)
-#         moveList = whereToMove(emptyBlockIdx)
-#         for move in moveList:
-#             PuzzleTuple = moveTile(PuzzleTuple, emptyBlockIdx, move)
-#             if PuzzleTuple.isTheAnswer():
-#                 return PuzzleTuple
-#             else:
-#                 PuzzleTuple = solve(PuzzleTuple)
-#                 if PuzzleTuple.isTheAnswer():
-#                     return PuzzleTuple
-#                 else:
-#                     PuzzleTuple = moveTile(PuzzleTuple, emptyBlockIdx, move)
-#         PuzzleTuple.printPuzzle()
-#         return PuzzleTuple

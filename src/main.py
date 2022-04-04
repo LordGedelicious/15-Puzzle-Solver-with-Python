@@ -1,69 +1,94 @@
-# Buatlah program dalam Java/Python untuk menyelesaikan persoalan 15-Puzzle dengan
-# menggunakan Algoritma Branch and Bound seperti pada materi kuliah. Nilai bound tiap
-# simpul adalah penjumlahan cost yang diperlukan untuk sampai suatu simpul x dari akar,
-# dengan taksiran cost simpul x untuk sampai ke goal. Taksiran cost yang digunakan adalah
-# jumlah ubin tidak kosong yang tidak berada pada tempat sesuai susunan akhir (goal state). 
-
-import matrix
-import branchNbound
+from asyncio.windows_events import NULL
+from queue import PriorityQueue
+import matrixCreator
+import bNb
 import time
+import numpy as np
+import os
 
-def main():
-    print("Selamat datang di 15-Puzzle Solver!")
-    print("Silahkan pilih opsi untuk inisiasi matriks puzzle:")
+def mainProgram():
+    print("Selamat datang di program 15-Puzzle Solver")
+    pathDirectory = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'output'))
+    targetFile = input("Silahkan input nama file txt untuk menyimpan puzzle yang ingin dicari solusinya (tanpa extension .txt): ")
+    targetFilePath = pathDirectory + "/" + targetFile + ".txt"
+    targetFilePath = targetFilePath.replace("\\", "/")
+    f = open(targetFilePath, "w")
+    print("Silahkan pilih metode input matriks puzzle")
     print("1. Random")
-    print("2. Manual (from txt file)")
-    print("3. Manual (from console)")
-    isChoiceCorrect = False
-    while not(isChoiceCorrect):
-        choice = int(input("Pilihan anda: "))
-        if choice == 1:
-            t0= time.time()
-            isChoiceCorrect = True
-            newPuzzle = matrix.random_matrix()
-            newPuzzleTuple = branchNbound.PCMTuple(newPuzzle, 0, 0, 0)
-            boolSolvable = branchNbound.isSolvable(newPuzzleTuple)
-            branchNbound.printMatrix(newPuzzleTuple)
-            if boolSolvable:
-                print("Solvable!")
-                listPuzzleTuple = branchNbound.moveTiles(newPuzzleTuple, [])
-                branchNbound.printListPuzzleTuple(listPuzzleTuple)
-                hasFoundTarget = branchNbound.anyHasReachTarget(listPuzzleTuple)
-                while not(hasFoundTarget):
-                    listPuzzleTuple = branchNbound.moveTiles(newPuzzleTuple, listPuzzleTuple)
-                    hasFoundTarget = branchNbound.anyHasReachTarget(listPuzzleTuple)
-                t1 = time.time() - t0
-                print("Time elapsed: ", t1) # CPU seconds elapsed (floating point)
-                print("OKE DAH KELAR")
-                exit()
+    print("2. Read From File")
+    choice = input("Silahkan masukkan metode pilihan anda: ")
+    while not choice.isdigit() and choice != "1" and choice != "2":
+        choice = input("Error. Please input a choice in range of 1 to 2: ")
+    choice = int(choice)
+    if choice == 1:
+        print("Anda memakai random input", file=f)
+        initPTuple = matrixCreator.random_matrix()
+        initPTuple.printPuzzle(f)
+        isSolvable = bNb.checkIsSolvable(initPTuple, f)
+    elif choice == 2:
+        initPTuple, fileNameWithExtension = matrixCreator.readFromFile()
+        print("Anda memakai input dari file {}".format(fileNameWithExtension), file=f)
+        initPTuple.printPuzzle(f)
+        isSolvable = bNb.checkIsSolvable(initPTuple, f)
+    if (isSolvable):
+        nodeCreated = 0
+        startTime = time.time()
+        visitedStates = dict()
+        # Isi dari priorityQueue : (cost, kedalaman (negatif), [puzzle, dictionary])
+        prioQueue = PriorityQueue()
+        currentMoveMade = []
+        prioQueue.put((0, -1, [initPTuple, currentMoveMade]))
+        visitedStates[initPTuple.returnPuzzleBytes()] = True
+        hasFound = False
+        while not hasFound:
+            currentNode = prioQueue.get()
+            currentTuple = currentNode[2][0]
+            currentMoveMade = currentNode[2][1]
+            if currentTuple.isGoal():
+                hasFound = True
+                timeTaken = time.time() - startTime
+                printResult(initPTuple, currentMoveMade, timeTaken, nodeCreated, f)
             else:
-                print("Puzzle is unsolvable!")
-                exit()
-            # Buat dari matrix.py pake fungsi random
-        elif choice == 2:
-            t0= time.time()
-            isChoiceCorrect = True
-            newPuzzleTuple = branchNbound.PCMTuple(matrix.readFromFile(), 0, 0, 0)
-            boolSolvable = branchNbound.isSolvable(newPuzzleTuple)
-            branchNbound.printMatrix(newPuzzleTuple)
-            visitedPCMTuple = set()
-            if boolSolvable:
-                print("Solvable!")
-                hasFoundTarget, listPuzzleTuple, visitedPCMTuple = branchNbound.moveTiles(newPuzzleTuple, [], visitedPCMTuple)
-                while not(hasFoundTarget):
-                    hasFoundTarget, listPuzzleTuple, visitedPCMTuple = branchNbound.moveTiles(newPuzzleTuple, listPuzzleTuple, visitedPCMTuple)
-                t1 = time.time() - t0
-                print("Time elapsed: ", t1) # CPU seconds elapsed (floating point)
-                print("OKE DAH KELAR")
-                exit()
-            else:
-                print("Puzzle is unsolvable!")
-                exit()
-            # Buat dari matrix.py pake fungsi readTxtFile
-        elif choice == 3:
-            isChoiceCorrect = True
-            # Buat dari matrix.py pake fungsi readConsole
-        else:
-            print("Pilihan tidak tersedia! Silahkan coba lagi.")
+                currentEmptyBlockIdx = bNb.whereEmptyBlock(currentTuple)
+                currentMoveList = bNb.whereToMove(currentEmptyBlockIdx)
+                for move in currentMoveList:
+                    newPuzzle = bNb.moveTile(currentTuple.copy(), currentEmptyBlockIdx, move)
+                    newPuzzle.setCost = newPuzzle.countCost()
+                    newPuzzle.setMoveMade(len(currentMoveMade) + 1)
+                    if newPuzzle.returnPuzzleBytes() not in visitedStates.keys():
+                        nodeCreated += 1
+                        visitedStates[newPuzzle.returnPuzzleBytes()] = True
+                        prioQueue.put((newPuzzle.countCost() - currentNode[1], currentNode[1] - 1, [newPuzzle, currentMoveMade + [move]]))
+    else:
+        print("Puzzle is not solvable!", file=f)
+    print("Hasil perhitungan dan kalkulasi sudah ditulis di file {}".format(targetFilePath))
+    f.close()
 
-main()
+def translateLangkah(langkah):
+    if langkah == 'U':
+        return "Atas"
+    elif langkah == 'D':
+        return "Bawah"
+    elif langkah == 'L':
+        return "Kiri"
+    elif langkah == 'R':
+        return "Kanan"
+
+def printResult(initPTuple, currentMoveMade, timeTaken, nodeCreated, f):
+    print("Waktu yang dibutuhkan: %.5f detik" %timeTaken, file=f)
+    print("Jumlah node yang dibuat:", nodeCreated, file=f)
+    print("Jumlah langkah yang dilakukan:", len(currentMoveMade), file=f)
+    print("Semua langkah yang dilakukan:", currentMoveMade , file=f)
+    stepCount = 1
+    while len(currentMoveMade) != 0:
+        langkah = currentMoveMade.pop(0)
+        textLangkah = translateLangkah(langkah)
+        print("Langkah ke-%d" %stepCount, ":", file=f)
+        print("Move yang dilakukan:", textLangkah, file=f)
+        initPTuple = bNb.moveTile(initPTuple, bNb.whereEmptyBlock(initPTuple), langkah)
+        initPTuple.printPuzzle(f)
+        stepCount += 1
+
+
+mainProgram()
+
