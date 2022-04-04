@@ -1,0 +1,50 @@
+Anda memakai input dari file inputPossible1.txt
+1 2 3 4 
+5 6 16 8 
+9 10 7 11 
+13 14 15 12 
+
+Elemen 1 memiliki nilai KURANG(i) senilai 0
+Elemen 2 memiliki nilai KURANG(i) senilai 0
+Elemen 3 memiliki nilai KURANG(i) senilai 0
+Elemen 4 memiliki nilai KURANG(i) senilai 0
+Elemen 5 memiliki nilai KURANG(i) senilai 0
+Elemen 6 memiliki nilai KURANG(i) senilai 0
+Elemen X memiliki nilai KURANG(i) senilai 1
+Elemen 16 memiliki nilai KURANG(i) senilai 9
+Elemen 8 memiliki nilai KURANG(i) senilai 1
+Elemen 9 memiliki nilai KURANG(i) senilai 1
+Elemen 10 memiliki nilai KURANG(i) senilai 1
+Elemen 7 memiliki nilai KURANG(i) senilai 0
+Elemen 11 memiliki nilai KURANG(i) senilai 0
+Elemen 13 memiliki nilai KURANG(i) senilai 1
+Elemen 14 memiliki nilai KURANG(i) senilai 1
+Elemen 15 memiliki nilai KURANG(i) senilai 1
+Elemen 12 memiliki nilai KURANG(i) senilai 0
+Posisi awal puzzle memiliki solusi dengan nilai KURANG(i) sebesar 16
+
+Waktu yang dibutuhkan: 0.00102 detik
+Jumlah node yang dibuat: 9
+Jumlah langkah yang dilakukan: 3
+Semua langkah yang dilakukan: ['D', 'R', 'D']
+Langkah ke-1 :
+Move yang dilakukan: Bawah
+1 2 3 4 
+5 6 7 8 
+9 10 16 11 
+13 14 15 12 
+
+Langkah ke-2 :
+Move yang dilakukan: Kanan
+1 2 3 4 
+5 6 7 8 
+9 10 11 16 
+13 14 15 12 
+
+Langkah ke-3 :
+Move yang dilakukan: Bawah
+1 2 3 4 
+5 6 7 8 
+9 10 11 12 
+13 14 15 16 
+
